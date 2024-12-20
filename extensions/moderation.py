@@ -34,7 +34,7 @@ class Moderation(commands.Cog):
         Returns:
             None
         """
-        if not await check_role(inter, AuthorizationLevelEnum.UFFICIALE_ESECUTIVO):
+        if not await check_role(inter, AuthorizationLevelEnum.VICECOMANDANTE):
             await send_response_and_clear(inter, False, "Non hai i permessi.")
             return
         await inter.response.send_modal(modal=Modal(ruolo, canale))
@@ -63,7 +63,7 @@ class Moderation(commands.Cog):
         Returns:
             None
         """
-        if not await check_role(inter, AuthorizationLevelEnum.UFFICIALE_ESECUTIVO):
+        if not await check_role(inter, AuthorizationLevelEnum.VICECOMANDANTE):
             await send_response_and_clear(inter, False, "Non hai i permessi.")
             return
         await inter.response.send_modal(modal=Modal(ruolo, canale, id_messaggio))
@@ -92,7 +92,7 @@ class Moderation(commands.Cog):
         Returns:
             None
         """
-        if not await check_role(inter, AuthorizationLevelEnum.UFFICIALE_ESECUTIVO):
+        if not await check_role(inter, AuthorizationLevelEnum.VICECOMANDANTE):
             await send_response_and_clear(inter, False, "Non hai i permessi.")
             return
         try:
