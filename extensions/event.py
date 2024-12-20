@@ -9,10 +9,10 @@ class Event(commands.Cog):
         self.voice_channel_id = CH_VCL_IN_CANALE
         self.afk_channel_id = CH_VCL_AFK
         self.guild_id = IMPERIUM_GUILD
-        self.update_task.start()
+        self.update_vcl_in_canale.start()
 
     @tasks.loop(minutes=5)  # Intervallo di aggiornamento (5 minuti)
-    async def update_task(self):
+    async def update_vcl_in_canale(self):
         # Ottieni la guild e i canali
         guild = self.bot.get_guild(self.guild_id)
         if not guild:
@@ -23,17 +23,17 @@ class Event(commands.Cog):
 
         # Conta gli utenti nei canali vocali, escludendo il canale AFK
         total_voice_users = sum(len(channel.members) for channel in guild.voice_channels if channel != afk_channel)
-        print(f"In canale: {total_voice_users}")
         # Aggiorna il nome del canale vocale se il conteggio è cambiato
         if voice_channel_to_update and total_voice_users != self.current_count:
             self.current_count = total_voice_users
             new_name = f"In canale: {total_voice_users}"
             await voice_channel_to_update.edit(name=new_name)
-            print(f"Canale aggiornato: {new_name}")
+            x = "utente." if new_name == 1 else "utenti."
+            print(f"Canale \"In canale\" aggiornato a {new_name} {x}")
 
     def cog_unload(self):
         # Ferma la task se il Cog viene rimosso
-        self.update_task.cancel()
+        self.update_vcl_in_canale.cancel()
 
 
 def setup(bot: commands.Cog):
