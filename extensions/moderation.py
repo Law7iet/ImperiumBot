@@ -1,7 +1,7 @@
 from disnake import Role, TextChannel, errors, ApplicationCommandInteraction
 from disnake.ext import commands
 
-from utils.constants import AuthorizationLevelEnum
+from utils.constants import AuthorizationLevelEnum, CH_TXT_REGOLAMENTO
 from utils.functions import send_response_and_clear, check_role
 
 from utils.modal import Modal
@@ -34,7 +34,7 @@ class Moderation(commands.Cog):
         Returns:
             None
         """
-        if not await check_role(inter, AuthorizationLevelEnum.VICECOMANDANTE):
+        if not await check_role(inter, AuthorizationLevelEnum.CONSOLE):
             await send_response_and_clear(inter, False, "Non hai i permessi.")
             return
         await inter.response.send_modal(modal=Modal(ruolo, canale))
@@ -63,10 +63,33 @@ class Moderation(commands.Cog):
         Returns:
             None
         """
-        if not await check_role(inter, AuthorizationLevelEnum.VICECOMANDANTE):
+        if not await check_role(inter, AuthorizationLevelEnum.CONSOLE):
             await send_response_and_clear(inter, False, "Non hai i permessi.")
             return
         await inter.response.send_modal(modal=Modal(ruolo, canale, id_messaggio))
+
+    @modifica.sub_command(description="Aggiunge una reazione al messaggio indicato.")
+    async def regolamento(
+        self,
+        inter: ApplicationCommandInteraction,
+        messaggio: str
+    ) -> None:
+        if not await check_role(inter, AuthorizationLevelEnum.MODERATORE):
+            await send_response_and_clear(inter, False, "Non hai i permessi.")
+            return
+        try:
+            guild = inter.guild
+            channel = guild.get_channel(CH_TXT_REGOLAMENTO)
+            message = await channel.fetch_message(957267144515653782)
+            formatted_msg = ""
+            for row in messaggio.split("\\n"):
+                formatted_msg = formatted_msg + "\n" + row
+            await message.edit(formatted_msg)
+        except Exception as e:
+            await send_response_and_clear(inter, False, "Errore. Guarda i log.")
+            print(f"Errore durante la modifica del regolamento: {e}")
+            return
+        await send_response_and_clear(inter, False, "Fatto!")
 
     @commands.slash_command()
     async def aggiungi(self, inter: ApplicationCommandInteraction) -> None:
@@ -92,7 +115,7 @@ class Moderation(commands.Cog):
         Returns:
             None
         """
-        if not await check_role(inter, AuthorizationLevelEnum.VICECOMANDANTE):
+        if not await check_role(inter, AuthorizationLevelEnum.CONSOLE):
             await send_response_and_clear(inter, False, "Non hai i permessi.")
             return
         try:
