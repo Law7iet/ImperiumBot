@@ -2,7 +2,7 @@ import re
 from datetime import time
 
 from disnake.ext import commands, tasks
-from disnake import ApplicationCommandInteraction
+from disnake import ApplicationCommandInteraction, Forbidden
 from utils.functions import send_response_and_clear, check_role
 from utils.constants import AuthorizationLevelEnum, CH_TXT_TESTING, IMPERIUM, IMPERIUM_GUILD
 from utils.wargaming_api import ApiWargaming
@@ -22,9 +22,7 @@ class Nickname(commands.Cog):
         if guild:
             testing_channel = guild.get_channel(CH_TXT_TESTING)
             if testing_channel:
-                await testing_channel.send(":hourglass: Inizio aggiornamento automatico dei nickname...")
                 await self._update_nicknames(guild, testing_channel)
-                await testing_channel.send(":white_check_mark: Aggiornamento completato!")
 
     @daily_nickname_task.before_loop
     async def before_daily_nickname_task(self):
@@ -34,6 +32,7 @@ class Nickname(commands.Cog):
 
     async def _update_nicknames(self, guild, testing_channel):
         """Logica principale condivisa per aggiornare i nickname."""
+        await testing_channel.send(":hourglass: Inizio aggiornamento automatico dei nickname...")
         members = guild.members
         for member in members:
             # Solo se il membro ha il ruolo OSPITI
@@ -76,8 +75,14 @@ class Nickname(commands.Cog):
                     if len(new_nickname) > 32:
                         new_nickname = user_current_tag + " " + user_current_nickname
                     await member.edit(nick=new_nickname)
-                except Exception:
-                    await testing_channel.send(f":bangbang: <@{member.id}> errore.")
+                except Forbidden:
+                    if member.id != 396025435625881613:
+                        await testing_channel.send(f":bangbang: <@{member.id}> errore generale. Guarda i log.")
+                        print(f"Errore durante il nickname di {member.id}: {e}")
+                except Exception as e:
+                    await testing_channel.send(f":bangbang: <@{member.id}> errore generale. Guarda i log.")
+                    print(f"Errore durante il nickname di {member.id}: {e}")
+        await testing_channel.send(":white_check_mark: Aggiornamento completato!")
 
     @commands.slash_command(description="Cambia il nickname degli utenti del server con quello di WoWs.")
     async def nickname(self, inter: ApplicationCommandInteraction) -> None:
